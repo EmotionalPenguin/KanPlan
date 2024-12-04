@@ -25,7 +25,7 @@ export function KanbanColumn({ title, status, tasks, onEditTask }: KanbanColumnP
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const column = e.currentTarget;
+    const column = e.currentTarget as HTMLElement;
     column.classList.remove('bg-accent/50');
     
     const taskId = e.dataTransfer.getData('taskId');
