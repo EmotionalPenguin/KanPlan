@@ -27,7 +27,7 @@ function KanbanBoard() {
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Task Board</h1>
+          <h1 className="text-3xl font-bold">KanPlan</h1>
           <Button onClick={() => setDialogOpen(true)} size="sm">
             <Plus className="mr-2 h-4 w-4" />
             Add Task
