@@ -7,6 +7,7 @@ interface TaskContextType {
   updateTask: (task: Task) => void;
   deleteTask: (id: string) => void;
   moveTask: (taskId: string, newStatus: Status) => void;
+  reorderTask: (taskId: string, sourceIndex: number, destinationIndex: number, status: Status) => void;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -40,9 +41,24 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const reorderTask = (taskId: string, sourceIndex: number, destinationIndex: number, status: Status) => {
+    setTasks((prev) => {
+      const result = [...prev];
+      const statusTasks = result.filter(task => task.status === status);
+      const [reorderedTask] = statusTasks.splice(sourceIndex, 1);
+      statusTasks.splice(destinationIndex, 0, reorderedTask);
+      
+      // Reconstruct the full task list with the reordered tasks
+      return [
+        ...result.filter(task => task.status !== status),
+        ...statusTasks
+      ];
+    });
+  };
+
   return (
     <TaskContext.Provider
-      value={{ tasks, addTask, updateTask, deleteTask, moveTask }}
+      value={{ tasks, addTask, updateTask, deleteTask, moveTask, reorderTask }}
     >
       {children}
     </TaskContext.Provider>

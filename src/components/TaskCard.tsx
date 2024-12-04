@@ -7,10 +7,11 @@ import { useTaskContext } from '@/contexts/TaskContext';
 
 interface TaskCardProps {
   task: Task;
+  index: number;
   onEdit: (task: Task) => void;
 }
 
-export function TaskCard({ task, onEdit }: TaskCardProps) {
+export function TaskCard({ task, index, onEdit }: TaskCardProps) {
   const { deleteTask } = useTaskContext();
 
   const priorityColors = {
@@ -21,10 +22,12 @@ export function TaskCard({ task, onEdit }: TaskCardProps) {
 
   return (
     <Card
-      className="p-4 mb-3 cursor-move hover:shadow-md transition-shadow duration-200"
+      className="p-4 mb-3 cursor-move hover:shadow-md transition-shadow duration-200 task-card"
       draggable="true"
       onDragStart={(e) => {
         e.dataTransfer.setData('taskId', task.id);
+        e.dataTransfer.setData('sourceStatus', task.status);
+        e.dataTransfer.setData('sourceIndex', index.toString());
         const card = e.currentTarget;
         card.classList.add('animate-task-drag', 'opacity-50');
       }}

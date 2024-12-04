@@ -10,7 +10,7 @@ interface KanbanColumnProps {
 }
 
 export function KanbanColumn({ title, status, tasks, onEditTask }: KanbanColumnProps) {
-  const { moveTask } = useTaskContext();
+  const { moveTask, reorderTask } = useTaskContext();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -29,7 +29,38 @@ export function KanbanColumn({ title, status, tasks, onEditTask }: KanbanColumnP
     column.classList.remove('bg-accent/50');
     
     const taskId = e.dataTransfer.getData('taskId');
-    moveTask(taskId, status);
+    const sourceStatus = e.dataTransfer.getData('sourceStatus');
+    const sourceIndex = parseInt(e.dataTransfer.getData('sourceIndex'));
+    
+    if (sourceStatus !== status) {
+      // Moving between columns
+      moveTask(taskId, status);
+    } else {
+      // Reordering within the same column
+      const dropIndex = getDropIndex(e.clientY, column);
+      if (dropIndex !== sourceIndex) {
+        reorderTask(taskId, sourceIndex, dropIndex, status);
+      }
+    }
+  };
+
+  const getDropIndex = (y: number, column: HTMLElement): number => {
+    const taskElements = Array.from(column.getElementsByClassName('task-card'));
+    const closestTask = taskElements.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) {
+        return { offset, element: child };
+      } else {
+        return closest;
+      }
+    }, { offset: Number.NEGATIVE_INFINITY, element: null });
+
+    if (closestTask.element === null) {
+      return taskElements.length;
+    }
+
+    return taskElements.indexOf(closestTask.element);
   };
 
   return (
@@ -41,8 +72,13 @@ export function KanbanColumn({ title, status, tasks, onEditTask }: KanbanColumnP
     >
       <h2 className="font-semibold text-xl mb-4">{title}</h2>
       <div className="space-y-3">
-        {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} onEdit={onEditTask} />
+        {tasks.map((task, index) => (
+          <TaskCard 
+            key={task.id} 
+            task={task} 
+            index={index}
+            onEdit={onEditTask} 
+          />
         ))}
       </div>
     </div>
